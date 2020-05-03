@@ -1,0 +1,6 @@
+TYPE=OVSPort
+NAME=eth1
+DEVICE=eth1
+DEVICETYPE=ovs
+OVS_BRIDGE=br-ex
+ONBOOT=yes
