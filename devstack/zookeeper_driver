@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+#
+# ``plugin.sh`` calls the following methods in the sourced driver:
+#
+# - nb_db_driver_install_server
+# - nb_db_driver_install_client
+# - nb_db_driver_start_server
+# - nb_db_driver_stop_server
+# - nb_db_driver_clean
+# - nb_db_driver_configure
+
+HOSTNAME=`hostname -f`
+
+if is_ubuntu ; then
+    UBUNTU_RELEASE_BASE_NUM=`lsb_release -r | awk '{print $2}' | cut -d '.' -f 1`
+fi
+
+function _zookeeper_env {
+    export ZOOKEEPER_DATA_DIR="/var/lib/zookeeper"
+    export ZOOKEEPER_LOG_DIR="/var/log/zookeeper"
+    export ZOOKEEPER_DIR="/etc/zookeeper"
+    local SERVER_LIST=$(echo $REMOTE_DB_HOSTS | sed 's/,/ /g')
+    export ZOOKEEPER_SERVER_PORT=$(echo $SERVER_LIST | awk -F: 'BEGIN {RS=" "} { print $2 }' | sort | uniq | tail -1)
+}
+
+function update_key_in_file {
+    key=$1; shift
+    value=$1; shift
+    file=$1; shift
+    local result=`grep -c "^ *$key *=" $file 2> /dev/null`
+    if [ $result -gt 0 ]; then
+        sudo sed -i "/^ *$key *=/c $key=$value" $file
+    else
+        sudo sh -c "echo \"$key=$value\" >> $file"
+    fi
+}
+
+function nb_db_driver_install_server {
+    if is_service_enabled df-zookeeper-server ; then
+        _zookeeper_env
+        echo "Installing Zookeeper server"
+        sudo mkdir -p $ZOOKEEPER_DATA_DIR
+        sudo mkdir -p $ZOOKEEPER_LOG_DIR
+        if is_ubuntu; then
+            ZOOKEEPER_CONF_DIR="${ZOOKEEPER_DIR}/conf"
+            install_package zookeeperd
+            ZOOKEEPER_CONF_FILE="${ZOOKEEPER_CONF_DIR}/zoo.cfg"
+        elif is_fedora; then
+            ZOOKEEPER_CONF_DIR="${ZOOKEEPER_DIR}"
+            install_package zookeeper
+            ZOOKEEPER_CONF_SAMPLE_FILE="${ZOOKEEPER_CONF_DIR}/zoo_sample.cfg"
+            ZOOKEEPER_CONF_FILE="${ZOOKEEPER_CONF_DIR}/zoo.cfg"
+            sudo cp $ZOOKEEPER_CONF_SAMPLE_FILE $ZOOKEEPER_CONF_FILE
+        else
+            die $LINENO "Other distributions are not supported"
+        fi
+
+        echo "Configuring Zookeeper"
+        if [ -f $ZOOKEEPER_CONF_FILE ] ; then
+            update_key_in_file dataDir "${ZOOKEEPER_DATA_DIR}" $ZOOKEEPER_CONF_FILE
+            update_key_in_file dataLogDir "${ZOOKEEPER_LOG_DIR}" $ZOOKEEPER_CONF_FILE
+            update_key_in_file clientPort "${ZOOKEEPER_SERVER_PORT}" $ZOOKEEPER_CONF_FILE
+            update_key_in_file "server.1" "${HOSTNAME}:2888:3888" $ZOOKEEPER_CONF_FILE
+        fi
+        sudo systemctl restart zookeeper
+        sudo sh -c "echo 1 >$ZOOKEEPER_CONF_DIR/myid"
+    fi
+}
+
+function nb_db_driver_clean {
+    if is_ubuntu; then
+        uninstall_package -y zookeeperd
+        uninstall_package -y zookeeper
+        uninstall_package -y libzookeeper-java
+    elif is_fedora; then
+        uninstall_package -y zookeeper
+    fi
+    if [ -f "/etc/systemd/system/zookeeper.service" ] ; then
+        sudo systemctl daemon-reload
+    fi
+}
+
+function nb_db_driver_install_client {
+    echo 'Zookeeper client sdk is in the requirements file.'
+}
+
+function nb_db_driver_start_server {
+    if is_service_enabled df-zookeeper-server ; then
+        _zookeeper_env
+        start_service zookeeper
+    fi
+}
+
+function nb_db_driver_stop_server {
+    if is_service_enabled df-zookeeper-server ; then
+        _zookeeper_env
+        stop_service zookeeper
+    fi
+}
+
+function nb_db_driver_configure {
+    :
+}

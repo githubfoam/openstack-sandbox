@@ -29,6 +29,7 @@ jobs:
           - vagrant version
           - sudo vagrant plugin install vagrant-libvirt
           - sudo vagrant plugin install vagrant-mutate
+          - sudo vagrant plugin install vagrant-env ##https://docs.openstack.org/developer/dragonflow/installation.html
           - sudo vagrant plugin install vagrant-cachier #https://docs.openstack.org/developer/dragonflow/installation.html
           - sudo vagrant plugin install vagrant-vbguest #https://docs.openstack.org/developer/dragonflow/installation.html
           - sudo vagrant status
@@ -36,10 +37,8 @@ jobs:
           - sudo vagrant box add "centos/7" --provider=libvirt
           - vagrant box list #veridy installed boxes
           - vagrant status #Check the status of the VMs to see that none of them have been created yet
-          # - sudo vagrant up --provider=libvirt vg-irods01
-          - echo 3 | sudo tee /proc/sys/vm/drop_caches # ram debug
-          - free -h # ram debug
-          - sudo vagrant up --provider=libvirt
+          - sudo vagrant up --provider=libvirt devstack_controller
+          # - sudo vagrant up --provider=libvirt 
           - sudo vagrant status
           - sudo vagrant global-status
           - sudo vagrant ssh devstack_controller -c "hostnamectl status"
