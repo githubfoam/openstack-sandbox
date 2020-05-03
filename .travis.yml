@@ -36,12 +36,13 @@ jobs:
           - sudo vagrant box add "centos/7" --provider=libvirt
           - vagrant box list #veridy installed boxes
           - vagrant status #Check the status of the VMs to see that none of them have been created yet
+          # - sudo vagrant up --provider=libvirt vg-irods01
           - sudo vagrant up --provider=libvirt vg-irods01
           - sudo vagrant status
           - sudo vagrant global-status
           - sudo vagrant ssh devstack_controller -c "hostnamectl status"
           - sudo vagrant ssh devstack_compute1  -c "hostnamectl status"
-          - sudo vagrant ssh devstack_compute2 -c "hostnamectl status"                    
+          - sudo vagrant ssh devstack_compute2 -c "hostnamectl status"
           - sudo virsh list --all #show all running KVM/libvirt VMs
 after_success:
     - stage: Finalize
