@@ -1,49 +1,73 @@
-Vagrant.require_version ">= 1.6.0"
-VAGRANTFILE_API_VERSION = "2"
-# YAML module for reading box configurations.
-require 'yaml'
-#  server configs from YAML/YML file
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-servers_list = YAML.load_file(File.join(File.dirname(__FILE__), 'provisioning/servers_list.yml'))
-# servers_list = YAML.load_file(File.join(File.dirname(__FILE__), 'servers_list.yml'))
+DATA_DISK_SIZE_GB = 64
+DATA_DISK_DIR = "#{ENV['HOME']}/.vagrant.d/vagrant-additional-disk-openstack"
+MEM = 8192
+CPUS = 2
+HOST_IP = "192.168.33.10" # ip of this VM in the private net
+GW_IP = "192.168.33.1" # IP of phys. host
+GIT_BASE = "http://#{GW_IP}:8888"
+OS_VERSION = "stable/rocky"
 
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
- # Disable updates
- config.vm.box_check_update = false
+Vagrant.configure("2") do |config|
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+    config.cache.enable :generic, {
+      "http" => { :cache_dir => "/root/.cache/pip/http" },
+      "wheels" => { :cache_dir => "/root/.cache/pip/wheels" },
+    }
+  end
 
-      servers_list.each do |server|
-        config.vm.define server["vagrant_box_host"] do |box|
-          box.vm.box = server["vagrant_box"]
-          box.vm.hostname = server["vagrant_box_host"]
-          box.vm.network server["network_type"], ip: server["vagrant_box_ip"]
-          # box.vm.network "forwarded_port", guest: server["guest_port"], host: server["host_port"]
-          box.vm.provider "virtualbox" do |vb|
-              vb.name = server["vbox_name"]
-              vb.memory = server["vbox_ram"]
-              vb.cpus = server["vbox_cpu"]
-              vb.gui = false
-              vb.customize ["modifyvm", :id, "--groups", "/beegfs-sandbox"] # create vbox group
-          end # end of box.vm.providers
+  config.vm.define "openstack" do |openstack|
 
-          box.vm.provision "ansible_local" do |ansible|
-              # ansible.compatibility_mode = "2.0"
-              ansible.compatibility_mode = server["ansible_compatibility_mode"]
-              ansible.version = server["ansible_version"]
-              ansible.playbook = server["server_bootstrap"]
-              ansible.inventory_path = 'provisioning/inventory_localconn'
-              # ansible.verbose = "vvvv" # debug
-           end # end if box.vm.provision
-          box.vm.provision "shell", inline: <<-SHELL
-          echo "===================================================================================="
-                                    hostnamectl status
-          echo "===================================================================================="
-          echo "         \   ^__^                                                                  "
-          echo "          \  (oo)\_______                                                          "
-          echo "             (__)\       )\/\                                                      "
-          echo "                 ||----w |                                                         "
-          echo "                 ||     ||                                                         "
-          SHELL
+    openstack.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".*/"
 
-        end # end of config.vm
-      end  # end of servers_list.each loop
-end # end of Vagrant.configure
+    openstack.vm.network "private_network", ip: HOST_IP
+
+    # we go for the generic image that is available for many providers
+    # be aware of hard coded public dns servers
+    openstack.vm.box = "generic/ubuntu1604"
+
+    openstack.vm.provider "virtualbox" do |vb|
+      # TODO: add second disk analogue to the vmware impl
+
+      vb.memory = MEM
+      vb.cpus = CPUS
+    end
+
+    openstack.vm.provider "vmware_desktop" do |vd|
+
+      vd.vmx["memsize"] = MEM
+      vd.vmx["numvcpus"] = CPUS
+
+      vd.vmx["virtualhw.version"] ="8"
+      vd.vmx['hv.assumeEnabled'] = "TRUE"
+      vd.vmx['vhv.enable'] = "TRUE"
+      vd.vmx['allowNested'] = "TRUE"
+
+      vdiskmanager = '/Applications/VMware\ Fusion.app/Contents/Library/vmware-vdiskmanager'
+
+      unless File.directory?( DATA_DISK_DIR )
+          Dir.mkdir DATA_DISK_DIR
+      end
+
+      file_to_disk = "#{DATA_DISK_DIR}/var-lib-libvirt.vmdk"
+
+      unless File.exists?( file_to_disk )
+          `#{vdiskmanager} -c -s #{DATA_DISK_SIZE_GB}GB -a lsilogic -t 1 #{file_to_disk}`
+      end
+
+      vd.vmx['scsi0:1.filename'] = file_to_disk
+      vd.vmx['scsi0:1.present']  = 'TRUE'
+      vd.vmx['scsi0:1.redo'] = ''
+
+      openstack.trigger.after :destroy do |trigger|
+        trigger.info = "Removing data disk..."
+        trigger.run = { inline: "rm -rf #{DATA_DISK_DIR}" }
+      end
+    end
+
+    openstack.vm.provision "shell", privileged: false, path: "provision.sh", env: { "HOST_IP" => HOST_IP, "GIT_BASE" => GIT_BASE, "BRANCH" => OS_VERSION }
+  end
+end
