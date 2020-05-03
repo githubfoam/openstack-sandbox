@@ -25,10 +25,10 @@ Vagrant.configure(2) do |config|
 
   config.vm.synced_folder '..', '/dragonflow'
 
-  config.vm.provider 'parallels' do |vb, override|
-     vb.customize ['set', :id, '--nested-virt', 'on']
-     override.vm.box = ENV.fetch('VAGRANT_OVN_VM_BOX', 'box-cutter/ubuntu1604')
-  end
+  # config.vm.provider 'parallels' do |vb, override|
+  #    vb.customize ['set', :id, '--nested-virt', 'on']
+  #    override.vm.box = ENV.fetch('VAGRANT_OVN_VM_BOX', 'box-cutter/ubuntu1604')
+  # end
   config.vm.provider 'libvirt' do |vb, override|
      vb.nested        = true
      override.vm.box = ENV.fetch('VAGRANT_OVN_VM_BOX', 'generic/ubuntu1804')
@@ -45,14 +45,14 @@ Vagrant.configure(2) do |config|
        vb.memory = vagrant_config['devstack_controller']['memory']
        vb.cpus = vagrant_config['devstack_controller']['cpus']
     end
-    config.vm.provider 'parallels' do |vb|
-       vb.memory = vagrant_config['devstack_controller']['memory']
-       vb.cpus = vagrant_config['devstack_controller']['cpus']
-    end
-    config.vm.provider 'libvirt' do |vb|
-       vb.memory = vagrant_config['devstack_controller']['memory']
-       vb.cpus = vagrant_config['devstack_controller']['cpus']
-    end
+    # config.vm.provider 'parallels' do |vb|
+    #    vb.memory = vagrant_config['devstack_controller']['memory']
+    #    vb.cpus = vagrant_config['devstack_controller']['cpus']
+    # end
+    # config.vm.provider 'libvirt' do |vb|
+    #    vb.memory = vagrant_config['devstack_controller']['memory']
+    #    vb.cpus = vagrant_config['devstack_controller']['cpus']
+    # end
   end
 
   # Bring up the Devstack compute nodes on the hypervisor
@@ -67,14 +67,14 @@ Vagrant.configure(2) do |config|
          vb.memory = vagrant_config["devstack_compute#{i}"]['memory']
          vb.cpus = vagrant_config["devstack_compute#{i}"]['cpus']
       end
-      config.vm.provider 'parallels' do |vb|
-         vb.memory = vagrant_config["devstack_compute#{i}"]['memory']
-         vb.cpus = vagrant_config["devstack_compute#{i}"]['cpus']
-      end
-      config.vm.provider 'libvirt' do |vb|
-         vb.memory = vagrant_config["devstack_compute#{i}"]['memory']
-         vb.cpus = vagrant_config["devstack_compute#{i}"]['cpus']
-      end
+      # config.vm.provider 'parallels' do |vb|
+      #    vb.memory = vagrant_config["devstack_compute#{i}"]['memory']
+      #    vb.cpus = vagrant_config["devstack_compute#{i}"]['cpus']
+      # end
+      # config.vm.provider 'libvirt' do |vb|
+      #    vb.memory = vagrant_config["devstack_compute#{i}"]['memory']
+      #    vb.cpus = vagrant_config["devstack_compute#{i}"]['cpus']
+      # end
     end
   end
 
@@ -89,14 +89,14 @@ Vagrant.configure(2) do |config|
        vb.memory = vagrant_config['devstack_aio']['memory']
        vb.cpus = vagrant_config['devstack_aio']['cpus']
     end
-    config.vm.provider 'parallels' do |vb|
-       vb.memory = vagrant_config['devstack_aio']['memory']
-       vb.cpus = vagrant_config['devstack_aio']['cpus']
-    end
-    config.vm.provider 'libvirt' do |vb|
-       vb.memory = vagrant_config['devstack_aio']['memory']
-       vb.cpus = vagrant_config['devstack_aio']['cpus']
-    end
+    # config.vm.provider 'parallels' do |vb|
+    #    vb.memory = vagrant_config['devstack_aio']['memory']
+    #    vb.cpus = vagrant_config['devstack_aio']['cpus']
+    # end
+    # config.vm.provider 'libvirt' do |vb|
+    #    vb.memory = vagrant_config['devstack_aio']['memory']
+    #    vb.cpus = vagrant_config['devstack_aio']['cpus']
+    # end
   end
 
 end

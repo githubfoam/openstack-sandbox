@@ -3,8 +3,7 @@ box: "ubuntu/xenial64"
 devstack_controller:
   host_name: controller.devstack.dev
   ip: "192.168.33.101"
-  # memory: 8192
-  memory: 5024
+  memory: 8192
   cpus: 2
 devstack_compute1:
   host_name: compute1.devstack.dev
