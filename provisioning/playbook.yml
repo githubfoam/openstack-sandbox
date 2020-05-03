@@ -1,0 +1,24 @@
+---
+- name: "Boot all hosts"
+  gather_facts: true
+  hosts:  all
+  become: yes
+  pre_tasks:
+  - name: "Setting hostname"
+    shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+  - name: "Set the timezone - It is important to have the correct time on all nodes"
+    shell: "timedatectl set-timezone Asia/Tokyo"
+  roles:
+    - common
+
+# - name: "Boot management hosts"
+#   gather_facts: true
+#   hosts:  grpirods
+#   become: yes
+#   pre_tasks:
+#   - name: "Setting hostname"
+#     shell: "hostnamectl set-hostname {{ inventory_hostname }}"
+#   roles:
+#     - common
+#     - postgresql
+#     - mysql

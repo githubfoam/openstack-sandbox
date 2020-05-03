@@ -1,0 +1,20 @@
+---
+- name: "Install NTP"
+  yum: name=ntp state=present
+
+- name: "Configure ntp"
+  template: dest=/etc/ntp.conf src=ntp.conf.j2 mode=0644 owner=root group=root
+  notify:
+    - Restart ntpd
+
+- name: "Make sure NTP service is running"
+  service: name=ntpd enabled=yes state=started
+
+- name: "Add mappings to /etc/hosts"
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      {{ item.ip }} {{ item.namelong }} {{ item.nameshort }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.nameshort }}"
+  with_items:
+  - { ip: 192.168.44.10, namelong: vg-irods01.local, nameshort: vg-irods01 }
