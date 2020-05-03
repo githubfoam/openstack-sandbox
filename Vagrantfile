@@ -3,14 +3,15 @@
 
 Vagrant.configure("2") do |config|
   # config.vm.box = "bento/ubuntu-18.04"
-  config.vm.box = "generic/ubuntu-18.04"
+  config.vm.box = "generic/ubuntu1804" #OK
+  # config.vm.box = "generic/ubuntu1604" #OK
   # config.vm.box_check_update = true
 
   vm_name = "openstack-client"
 
   config.vm.hostname = vm_name
 
-  #  config.vm.provider "parallels" do |prl|  
+  #  config.vm.provider "parallels" do |prl|
   #   prl.name = vm_name
   #
   #   prl.update_guest_tools = true
