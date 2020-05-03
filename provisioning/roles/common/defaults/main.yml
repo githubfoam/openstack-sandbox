@@ -1,5 +1,0 @@
----
-# defaults file for common
-# List of NTP servers
-ntp_servers:
-  - 0.pool.ntp.org

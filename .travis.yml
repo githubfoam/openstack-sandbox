@@ -29,6 +29,8 @@ jobs:
           - vagrant version
           - sudo vagrant plugin install vagrant-libvirt
           - sudo vagrant plugin install vagrant-mutate
+          - sudo vagrant plugin install vagrant-cachier #https://docs.openstack.org/developer/dragonflow/installation.html
+          - sudo vagrant plugin install vagrant-vbguest #https://docs.openstack.org/developer/dragonflow/installation.html
           - sudo vagrant status
           - sudo virsh list --all #show all running KVM/libvirt VMs
           - sudo vagrant box add "centos/7" --provider=libvirt
@@ -37,7 +39,9 @@ jobs:
           - sudo vagrant up --provider=libvirt vg-irods01
           - sudo vagrant status
           - sudo vagrant global-status
-          - sudo vagrant ssh vg-irods01 -c "hostnamectl status"
+          - sudo vagrant ssh devstack_controller -c "hostnamectl status"
+          - sudo vagrant ssh devstack_compute1  -c "hostnamectl status"
+          - sudo vagrant ssh devstack_compute2 -c "hostnamectl status"                    
           - sudo virsh list --all #show all running KVM/libvirt VMs
 after_success:
     - stage: Finalize
