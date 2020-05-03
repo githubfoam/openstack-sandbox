@@ -1,16 +1,14 @@
 # openstack-sandbox
 ~~~~
-https://travis-ci.com/github/githubfoam/openstack-sandbox/builds/163470418
+https://travis-ci.com/github/githubfoam/openstack-sandbox/builds/163472382
+==> devstack_controller: Starting domain.
 
-$ sudo vagrant status
+There was an error talking to Libvirt. The error message is shown
 
-sh: 1: /Applications/VMware Fusion.app/Contents/Library/vmware-vdiskmanager: not found
+below:
 
-sh: 1: /Applications/VMware Fusion.app/Contents/Library/vmware-vdiskmanager: not found
+Call to virDomainCreateWithFlags failed: internal error: process exited while connecting to monitor: 2020-05-03T10:17:27.128203Z qemu-system-x86_64: cannot set up guest memory 'pc.ram': Cannot allocate memory
 
-sh: 1: /Applications/VMware Fusion.app/Contents/Library/vmware-vdiskmanager: not found
+The command "sudo vagrant up --provider=libvirt" exited with 1.
 
-sh: 1: /Applications/VMware Fusion.app/Contents/Library/vmware-vdiskmanager: not found
-
-Current machine states:
 ~~~~
