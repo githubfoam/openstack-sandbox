@@ -12,3 +12,6 @@ Call to virDomainCreateWithFlags failed: internal error: process exited while co
 The command "sudo vagrant up --provider=libvirt" exited with 1.
 
 ~~~~
+~~~~
+https://docs.openstack.org/developer/dragonflow/installation.html#automated-setup-using-vagrant-virtualbox
+~~~~
