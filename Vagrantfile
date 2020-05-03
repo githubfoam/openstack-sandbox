@@ -27,7 +27,8 @@ Vagrant.configure("2") do |config|
 
     # we go for the generic image that is available for many providers
     # be aware of hard coded public dns servers
-    openstack.vm.box = "generic/ubuntu1604"
+    # openstack.vm.box = "generic/ubuntu1604"
+    openstack.vm.box = "centos/7"
 
     openstack.vm.provider "virtualbox" do |vb|
       # TODO: add second disk analogue to the vmware impl
