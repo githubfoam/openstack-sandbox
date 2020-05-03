@@ -37,6 +37,8 @@ jobs:
           - vagrant box list #veridy installed boxes
           - vagrant status #Check the status of the VMs to see that none of them have been created yet
           # - sudo vagrant up --provider=libvirt vg-irods01
+          - echo 3 |  tee /proc/sys/vm/drop_caches # ram debug
+          - free # ram debug
           - sudo vagrant up --provider=libvirt
           - sudo vagrant status
           - sudo vagrant global-status
