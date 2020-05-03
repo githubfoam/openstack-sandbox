@@ -10,6 +10,17 @@ Vagrant.configure("2") do |config|
       vb.memory = 6048
       vb.cpus = 2
     end
+    m.vm.provision "shell", inline: <<-SHELL
+      echo "===================================================================================="
+                            hostnamectl status
+      echo "===================================================================================="
+      echo "         \   ^__^                                                                  "
+      echo "          \  (oo)\_______                                                          "
+      echo "             (__)\       )\/\                                                      "
+      echo "                 ||----w |                                                         "
+      echo "                 ||     ||                                                         "
+      ip link show
+      SHELL
     m.vm.provision "file", source: "ifcfg-eth1", destination: "/tmp/ifcfg-eth1"
     m.vm.provision "file", source: "ifcfg-br-ex", destination: "/tmp/ifcfg-br-ex"
     m.vm.provision "shell", path: "./provision.sh"
