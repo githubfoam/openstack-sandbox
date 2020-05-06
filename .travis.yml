@@ -29,15 +29,18 @@ jobs:
           - vagrant version
           - sudo vagrant plugin install vagrant-libvirt
           - sudo vagrant plugin install vagrant-mutate
-          - sudo vagrant plugin install vagrant-cachier #https://docs.openstack.org/developer/dragonflow/installation.html
-          - sudo vagrant plugin install vagrant-vbguest #https://docs.openstack.org/developer/dragonflow/installation.html
+          - sudo vagrant plugin install vagrant-hostmanager
+          - sudo vagrant plugin install vagrant-triggers 
+          # - sudo vagrant plugin install vagrant-cachier #https://docs.openstack.org/developer/dragonflow/installation.html
+          # - sudo vagrant plugin install vagrant-vbguest #https://docs.openstack.org/developer/dragonflow/installation.html
           - sudo vagrant status
           - sudo virsh list --all #show all running KVM/libvirt VMs
-          - sudo vagrant box add "centos/7" --provider=libvirt
+          - sudo vagrant box add "bento/ubuntu-18.04"
+          - sudo vagrant mutate "bento/ubuntu-18.04" libvirt
           - vagrant box list #veridy installed boxes
           - vagrant status #Check the status of the VMs to see that none of them have been created yet
           # - sudo vagrant up --provider=libvirt vg-irods01
-          - sudo vagrant up --provider=libvirt
+          - - travis_wait 30 sudo vagrant up --provider=libvirt
           - sudo vagrant status
           - sudo vagrant global-status
           # - sudo vagrant ssh devstack_controller -c "hostnamectl status"
