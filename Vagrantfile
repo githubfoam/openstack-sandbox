@@ -39,26 +39,26 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-18.04"
   config.vm.synced_folder ".", "/vagrant", type: "nfs"
 
-  if config.vm.provider :vmware_workstation
-    # If we're running VMware Workstation (i.e. Linux)
-    if Vagrant.has_plugin?("vagrant-triggers")
-      config.trigger.before :up do
-        puts "[+] INFO: Ensuring /dev/vmnet* are correct to allow promiscuous mode."
-        puts "[+]       Needed for access to containers on different VMs."
-        run "./fix_vmnet.sh"
-      end
-    else
-      puts "[-] You do not have vagrant-triggers installed so Vagrant is unable"
-      puts "[-] to set the correct permissions for promiscuous mode to function"
-      puts "[-] on VMware Workstation based environments"
-      puts "[-]"
-      puts "[-] Install using: vagrant plugin install vagrant-triggers"
-      puts "[-]"
-      puts "[-] Please ensure /dev/vmnet* is group owned and writeable by you"
-      puts "[-]          sudo chmod chgrp <gid> /dev/vmnet*"
-      puts "[-]          sudo chmod g+rw /dev/vmnet*"
-    end
-  end
+  # if config.vm.provider :vmware_workstation
+  #   # If we're running VMware Workstation (i.e. Linux)
+  #   if Vagrant.has_plugin?("vagrant-triggers")
+  #     config.trigger.before :up do
+  #       puts "[+] INFO: Ensuring /dev/vmnet* are correct to allow promiscuous mode."
+  #       puts "[+]       Needed for access to containers on different VMs."
+  #       run "./fix_vmnet.sh"
+  #     end
+  #   else
+  #     puts "[-] You do not have vagrant-triggers installed so Vagrant is unable"
+  #     puts "[-] to set the correct permissions for promiscuous mode to function"
+  #     puts "[-] on VMware Workstation based environments"
+  #     puts "[-]"
+  #     puts "[-] Install using: vagrant plugin install vagrant-triggers"
+  #     puts "[-]"
+  #     puts "[-] Please ensure /dev/vmnet* is group owned and writeable by you"
+  #     puts "[-]          sudo chmod chgrp <gid> /dev/vmnet*"
+  #     puts "[-]          sudo chmod g+rw /dev/vmnet*"
+  #   end
+  # end
 
   # VMware Fusion / Workstation
   config.vm.provider :vmware_fusion or config.vm.provider :vmware_workstation do |vmware, override|
