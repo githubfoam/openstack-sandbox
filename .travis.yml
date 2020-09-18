@@ -1,0 +1,33 @@
+language: ruby
+dist: bionic #18.04
+sudo: required
+rvm:
+  - 2.7
+notifications:
+   slack:
+      on_failure: always
+   email:
+     on_success: never # default: change
+     on_failure: always # default: always
+   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+
+matrix:
+  fast_finish: true
+  include:
+
+    - name: "Architecture = (x86_64) [CentOS 7.7] (with Warewulf + PBS Professional) Python 3.7 on bionic amd64"
+      dist: bionic
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - python --version
+        - pip install -r requirements.txt         
+      script:   
+        - sudo make deploy-libvirt
+        - sudo make deploy-vagrant
+        - sudo make deploy-boxes            
+      after_success:
+        - deactivate
